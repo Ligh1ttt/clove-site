@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Подарок</title>
+  <style>
+    /* --- ОБЩИЕ СТИЛИ --- */
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Arial', sans-serif;
+      overflow: hidden;
+      transition: background-color 0.8s ease;
+      background-color: #ffffff;
+    }
+
+    /* --- ЭКРАН 1: ПОДАРОК --- */
+    .gift-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    @keyframes floatGift {
+      0% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-15px) rotate(2deg); }
+      100% { transform: translateY(0px) rotate(0deg); }
+    }
+
+    .gift-box {
+      width: 150px;
+      height: 150px;
+      position: relative;
+      cursor: pointer;
+      animation: floatGift 3s ease-in-out infinite;
+      transition: transform 0.1s ease;
+    }
+
+    .gift-box.shake {
+      animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    @keyframes shake {
+      10%, 90% { transform: translate3d(-2px, 0, 0); }
+      20%, 80% { transform: translate3d(4px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+      40%, 60% { transform: translate3d(6px, 0, 0); }
+    }
+
+    .gift-base {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 110px;
+      background-color: #d946ef;
+      border-radius: 8px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    .gift-lid {
+      position: absolute;
+      top: 0;
+      width: 106%;
+      left: -3%;
+      height: 45px;
+      background-color: #c026d3; 
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      z-index: 2;
+    }
+
+    .gift-ribbon-v {
+      position: absolute;
+      left: 45%;
+      top: 0;
+      width: 10%;
+      height: 100%;
+      background-color: #fcd34d;
+      z-index: 1;
+    }
+
+    .gift-ribbon-h {
+      position: absolute;
+      top: 15px;
+      left: 0;
+      width: 100%;
+      height: 15px;
+      background-color: #fcd34d;
+      z-index: 3;
+    }
+
+    .gift-bow {
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 40px;
+      z-index: 4;
+    }
+    
+    .gift-bow::before, .gift-bow::after {
+      content: '';
+      position: absolute;
+      width: 30px;
+      height: 40px;
+      border: 8px solid #fcd34d;
+      border-radius: 50%;
+      top: 0;
+    }
+    
+    .gift-bow::before {
+      left: 0;
+      border-radius: 50% 50% 0 50%;
+      transform: rotate(-45deg);
+    }
+    
+    .gift-bow::after {
+      right: 0;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(45deg);
+    }
+
+    .click-hint {
+      margin-top: 40px;
+      font-size: 16px;
+      color: #888;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: bold;
+      text-align: center;
+      max-width: 400px;
+      transition: opacity 0.3s ease;
+    }
+
+    .explosion {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 10px;
+      height: 10px;
+      background-color: #fcd34d;
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .exploding .explosion {
+      animation: explode 0.6s ease-out forwards;
+    }
+
+    @keyframes explode {
+      0% { width: 10px; height: 10px; opacity: 1; background-color: #fff; }
+      50% { opacity: 1; }
+      100% { width: 800px; height: 800px; opacity: 0; background-color: rgba(252, 211, 77, 0); }
+    }
+
+    /* --- ЭКРАН 2: РЕЗУЛЬТАТ (РАССВЕТ) --- */
+    .result-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.8s ease-in-out;
+      
+      background-color: #162e20; 
+      background-image: 
+        radial-gradient(circle at 20% 30%, rgba(46, 158, 122, 0.4) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(26, 122, 94, 0.5) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(31, 66, 48, 0.8) 0%, transparent 60%);
+      background-size: 200% 200%;
+      animation: backgroundShift 12s ease-in-out infinite alternate;
+    }
+
+    .gift-screen.hidden {
+      opacity: 0;
+      transform: scale(0.9);
+      pointer-events: none;
+    }
+
+    .result-screen.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    @keyframes backgroundShift {
+      0% { background-position: 0% 0%; }
+      50% { background-position: 100% 100%; }
+      100% { background-position: 0% 100%; }
+    }
+
+    .game-text {
+      font-family: 'Arial Black', Impact, sans-serif;
+      font-weight: 900;
+      text-transform: uppercase;
+      text-align: center;
+      letter-spacing: 6px;
+      color: #ffffff;
+      text-shadow: 0 0 10px rgba(46, 158, 122, 0.8), 0 0 20px rgba(46, 158, 122, 0.4);
+    }
+
+    .top-text {
+      font-size: 18px;
+      margin-bottom: 40px;
+      transform: translateY(-20px);
+      opacity: 0;
+      transition: all 0.8s ease 0.5s;
+    }
+
+    .result-screen.active .top-text {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .image-container {
+      width: 260px;
+      height: 260px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 30px;
+      transform: scale(0.8);
+      opacity: 0;
+      transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s;
+    }
+
+    .result-screen.active .image-container {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    .image-container img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 15px rgba(0, 0, 0, 0.5));
+    }
+
+    .custom-text {
+      font-size: 22px;
+      margin-top: 10px;
+      padding: 0 20px;
+      line-height: 1.4;
+      text-shadow: 0 0 10px rgba(46, 158, 122, 0.9), 0 0 25px rgba(46, 158, 122, 0.5);
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.8s ease 0.8s;
+    }
+
+    .result-screen.active .custom-text {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .next-btn {
+      margin-top: 40px;
+      padding: 12px 30px;
+      background: transparent;
+      color: #6ee7b7;
+      border: 2px solid #6ee7b7;
+      border-radius: 30px;
+      font-size: 16px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.4s ease;
+      transition-delay: 1.5s; 
+      box-shadow: 0 0 10px rgba(110, 231, 183, 0.2);
+    }
+
+    .result-screen.active .next-btn {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .next-btn:hover {
+      background: rgba(110, 231, 183, 0.1);
+      box-shadow: 0 0 20px rgba(110, 231, 183, 0.5);
+    }
+
+    /* --- ЭКРАН 3: СЮРПРИЗ (КОЛЛАЖ) --- */
+    .surprise-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.8s ease-in-out;
+      overflow: hidden;
+      
+      background-color: #2a103c; 
+      background-image: 
+        radial-gradient(circle at 30% 20%, rgba(236, 72, 153, 0.4) 0%, transparent 50%),
+        radial-gradient(circle at 70% 80%, rgba(139, 92, 246, 0.5) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(42, 16, 60, 0.8) 0%, transparent 60%);
+      background-size: 200% 200%;
+      animation: backgroundShift 10s ease-in-out infinite alternate;
+    }
+
+    .surprise-screen.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* --- МЕРЦАЮЩИЕ ФОНОВЫЕ КАРТИНКИ (8.jpg) --- */
+    .bg-sparkles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1; /* Позади коллажа (у коллажа z-index 2+) */
+      pointer-events: none; /* Клики проходят сквозь них */
+      overflow: hidden;
+    }
+
+    .sparkle {
+      position: absolute;
+      background-image: url('8.jpg');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      /* Начальное состояние - прозрачные */
+      opacity: 0;
+      /* Анимация мерцания */
+      animation: twinkle infinite ease-in-out alternate;
+      /* Легкое свечение в стиле Clove */
+      filter: drop-shadow(0 0 8px rgba(236, 72, 153, 0.6));
+    }
+
+    @keyframes twinkle {
+      0% {
+        opacity: 0.1;
+        transform: scale(0.8) rotate(0deg);
+      }
+      50% {
+        opacity: 0.8;
+        transform: scale(1.1) rotate(10deg);
+      }
+      100% {
+        opacity: 0.1;
+        transform: scale(0.8) rotate(-10deg);
+      }
+    }
+
+    /* Позиционирование и индивидуальные настройки для "искр" */
+    /* Разные размеры, места, задержки и длительности */
+    .s1 { top: 10%; left: 5%; width: 60px; height: 60px; animation-duration: 4s; animation-delay: 0s; }
+    .s2 { top: 25%; left: 15%; width: 40px; height: 40px; animation-duration: 6s; animation-delay: 1s; }
+    .s3 { top: 80%; left: 8%; width: 80px; height: 80px; animation-duration: 5s; animation-delay: 2s; }
+    .s4 { top: 60%; left: 25%; width: 35px; height: 35px; animation-duration: 7s; animation-delay: 0.5s; }
+    .s5 { top: 15%; left: 40%; width: 50px; height: 50px; animation-duration: 5.5s; animation-delay: 3s; }
+    .s6 { top: 85%; left: 45%; width: 45px; height: 45px; animation-duration: 6.5s; animation-delay: 1.5s; }
+    .s7 { top: 5%; left: 60%; width: 70px; height: 70px; animation-duration: 4.5s; animation-delay: 2.5s; }
+    .s8 { top: 30%; left: 75%; width: 55px; height: 55px; animation-duration: 8s; animation-delay: 0s; }
+    .s9 { top: 70%; left: 85%; width: 90px; height: 90px; animation-duration: 6s; animation-delay: 4s; }
+    .s10 { top: 50%; left: 95%; width: 40px; height: 40px; animation-duration: 5s; animation-delay: 1s; }
+    .s11 { top: 45%; left: 2%; width: 50px; height: 50px; animation-duration: 7.5s; animation-delay: 2s; }
+    .s12 { top: 90%; left: 70%; width: 65px; height: 65px; animation-duration: 5s; animation-delay: 0.5s; }
+    .s13 { top: 75%; left: 60%; width: 35px; height: 35px; animation-duration: 4s; animation-delay: 3s; }
+    .s14 { top: 40%; left: 50%; width: 45px; height: 45px; animation-duration: 6s; animation-delay: 1.5s; }
+    .s15 { top: 10%; left: 90%; width: 50px; height: 50px; animation-duration: 5s; animation-delay: 2s; }
+
+    /* Спецэффект: немного размытые картинки для глубины */
+    .s-blur { filter: blur(2px) drop-shadow(0 0 5px rgba(139, 92, 246, 0.4)); }
+
+    /* Центральный текст с эффектом стекла */
+    .surprise-center-text {
+      position: absolute;
+      top: 5%;
+      left: 50%;
+      transform: translateX(-50%) scale(0.8);
+      z-index: 10;
+      font-family: 'Arial Black', Impact, sans-serif;
+      font-size: 22px;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      text-align: center;
+      line-height: 1.4;
+      color: #ffffff;
+      padding: 15px 35px;
+      background: rgba(42, 16, 60, 0.8);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(236, 72, 153, 0.6);
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+      text-shadow: 0 0 10px rgba(236, 72, 153, 0.9);
+      opacity: 0;
+      transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.5s;
+      width: 80%;
+      max-width: 700px;
+    }
+
+    .surprise-screen.active .surprise-center-text {
+      transform: translateX(-50%) scale(1);
+      opacity: 1;
+    }
+
+    /* --- КОЛЛАЖ ИЗ КАРТИНОК --- */
+    .collage-item {
+      position: absolute;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      border: 3px solid rgba(255, 255, 255, 0.15);
+      background-color: #1a0a26; 
+      opacity: 0;
+      transform: scale(0.5) rotate(0deg);
+      transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, z-index 0s;
+      cursor: pointer;
+      z-index: 2; /* Выше мерцающих картинок */
+    }
+
+    .collage-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain; 
+      display: block;
+      transition: transform 0.3s ease;
+    }
+
+    .surprise-screen.active .collage-item {
+      opacity: 1;
+    }
+
+    /* Эффект при наведении (кроме центральной картинки) */
+    .surprise-screen.active .collage-item:not(.img-2):hover {
+      transform: scale(1.1) rotate(0deg) !important;
+      box-shadow: 0 15px 40px rgba(236, 72, 153, 0.7); 
+      border-color: rgba(236, 72, 153, 0.8);
+      z-index: 100 !important;
+    }
+
+    .collage-item:not(.img-2):hover img {
+      transform: scale(1.05);
+    }
+
+    /* 2.jpg (Центральная) */
+    .img-2 {
+      width: 320px; height: 400px; 
+      top: 52%; left: 50%; 
+      transform: translate(-50%, -50%) scale(0.5) rotate(-3deg);
+      transition-delay: 0.1s;
+      z-index: 3;
+      border: 3px solid rgba(236, 72, 153, 0.5);
+      box-shadow: 0 0 40px rgba(139, 92, 246, 0.4);
+      cursor: default;
+    }
+    .surprise-screen.active .img-2 { transform: translate(-50%, -50%) scale(1) rotate(-3deg); }
+
+    /* 3.jpg (Слева сверху) */
+    .img-3 {
+      width: 280px; height: 380px;
+      top: 22%; left: 8%; 
+      transform: scale(0.5) rotate(-10deg);
+      transition-delay: 0.3s;
+    }
+    .surprise-screen.active .img-3 { transform: scale(1) rotate(-10deg); }
+
+    /* 4.jpg (Справа сверху) */
+    .img-4 {
+      width: 260px; height: 330px; 
+      top: 20%; right: 5%;
+      transform: scale(0.5) rotate(8deg);
+      transition-delay: 0.4s;
+    }
+    .surprise-screen.active .img-4 { transform: scale(1) rotate(8deg); }
+
+    /* 5.jpg (Слева снизу) */
+    .img-5 {
+      width: 320px; height: 220px; 
+      bottom: 8%; left: 12%;
+      transform: scale(0.5) rotate(6deg);
+      transition-delay: 0.5s;
+    }
+    .surprise-screen.active .img-5 { transform: scale(1) rotate(6deg); }
+
+    /* 6.jpg (Справа снизу) */
+    .img-6 {
+      width: 250px; height: 320px; 
+      bottom: 8%; right: 8%;
+      transform: scale(0.5) rotate(-7deg);
+      transition-delay: 0.6s;
+    }
+    .surprise-screen.active .img-6 { transform: scale(1) rotate(-7deg); }
+
+    /* 7.jpg (Справа по центру) */
+    .img-7 {
+      width: 220px; height: 280px; 
+      top: 55%; right: 22%;
+      transform: scale(0.5) rotate(12deg);
+      transition-delay: 0.7s;
+      z-index: 4;
+    }
+    .surprise-screen.active .img-7 { transform: scale(1) rotate(12deg); }
+
+    /* Адаптация под мобильные экраны */
+    @media (max-width: 1024px) {
+      .img-2 { width: 240px; height: 300px; }
+      .img-3 { width: 200px; height: 280px; top: 20%; left: 5%; }
+      .img-4 { width: 200px; height: 260px; top: 18%; right: 3%; }
+      .img-5 { width: 220px; height: 160px; left: 8%; }
+      .img-6 { width: 180px; height: 230px; }
+      .img-7 { width: 160px; height: 210px; }
+      .sparkle { transform: scale(0.7); } /* Уменьшаем фоновые картинки на планшетах */
+    }
+
+    @media (max-width: 768px) {
+      .surprise-center-text { font-size: 14px; width: 90%; padding: 10px 15px; top: 2%; }
+      .img-2 { width: 180px; height: 230px; }
+      .img-3 { width: 130px; height: 180px; top: 20%; left: 5%; }
+      .img-4 { width: 130px; height: 170px; top: 22%; right: 5%; }
+      .img-5 { width: 150px; height: 110px; bottom: 5%; left: 5%; }
+      .img-6 { width: 120px; height: 160px; bottom: 8%; right: 5%; }
+      .img-7 { width: 100px; height: 130px; top: 58%; right: 15%; }
+      .sparkle { transform: scale(0.5); } /* Еще меньше на телефонах */
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ЭКРАН 1: ПОДАРОК -->
+  <div class="gift-screen" id="giftScreen">
+    <div class="gift-box" id="giftBox">
+      <div class="gift-base"></div>
+      <div class="gift-ribbon-v"></div>
+      <div class="gift-lid"></div>
+      <div class="gift-ribbon-h"></div>
+      <div class="gift-bow"></div>
+      <div class="explosion"></div>
+    </div>
+    <div class="click-hint" id="clickHint">Нажми на подарок</div>
+  </div>
+
+  <!-- ЭКРАН 2: РАССВЕТ -->
+  <div class="result-screen" id="resultScreen">
+    <div class="game-text top-text">Твой будущий ранг</div>
+    
+    <div class="image-container">
+      <img src="1.jpg" alt="Ранг Рассвет">
+    </div>
+    
+    <div class="game-text custom-text">У тебя все получится, любимая!</div>
+    
+    <button class="next-btn" id="nextBtn">Нажми, чтобы увидеть сюрприз)</button>
+  </div>
+
+  <!-- ЭКРАН 3: СЮРПРИЗ (КОЛЛАЖ) -->
+  <div class="surprise-screen" id="surpriseScreen">
+    
+    <!-- Мерцающие фоновые картинки 8.jpg -->
+    <div class="bg-sparkles">
+      <div class="sparkle s1"></div>
+      <div class="sparkle s2 s-blur"></div>
+      <div class="sparkle s3"></div>
+      <div class="sparkle s4 s-blur"></div>
+      <div class="sparkle s5"></div>
+      <div class="sparkle s6"></div>
+      <div class="sparkle s7 s-blur"></div>
+      <div class="sparkle s8"></div>
+      <div class="sparkle s9"></div>
+      <div class="sparkle s10 s-blur"></div>
+      <div class="sparkle s11"></div>
+      <div class="sparkle s12"></div>
+      <div class="sparkle s13 s-blur"></div>
+      <div class="sparkle s14"></div>
+      <div class="sparkle s15"></div>
+    </div>
+
+    <div class="surprise-center-text">Не забывай про свою любимую!<br>Она храбра и всегда рядом с тобой!</div>
+
+    <!-- Картинки коллажа -->
+    <div class="collage-item img-2"><img src="2.jpg" alt="Clove"></div>
+    <div class="collage-item img-3"><img src="3.jpg" alt="Фото 3"></div>
+    <div class="collage-item img-4"><img src="4.jpg" alt="Фото 4"></div>
+    <div class="collage-item img-5"><img src="5.jpg" alt="Фото 5"></div>
+    <div class="collage-item img-6"><img src="6.jpg" alt="Фото 6"></div>
+    <div class="collage-item img-7"><img src="7.jpg" alt="Фото 7"></div>
+
+  </div>
+
+  <script>
+    const giftBox = document.getElementById('giftBox');
+    const giftScreen = document.getElementById('giftScreen');
+    const resultScreen = document.getElementById('resultScreen');
+    const surpriseScreen = document.getElementById('surpriseScreen');
+    const clickHint = document.getElementById('clickHint');
+    const nextBtn = document.getElementById('nextBtn');
+
+    let clickCount = 0;
+    let isExploding = false;
+
+    giftBox.addEventListener('click', () => {
+      if (isExploding) return;
+
+      clickCount++;
+
+      if (clickCount === 1) {
+        clickHint.textContent = "Странно, ничего не происходит... Покликай ещё!";
+      } 
+      
+      if (clickCount > 1 && clickCount < 5) {
+        giftBox.classList.add('shake');
+        setTimeout(() => {
+          giftBox.classList.remove('shake');
+        }, 300);
+      }
+
+      if (clickCount >= 5) {
+        isExploding = true;
+        giftBox.classList.add('exploding');
+        giftBox.style.animation = 'none'; 
+        clickHint.style.opacity = '0';
+
+        setTimeout(() => {
+          giftScreen.classList.add('hidden');
+          resultScreen.classList.add('active');
+          document.body.style.backgroundColor = '#162e20';
+        }, 600);
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      resultScreen.classList.remove('active');
+      resultScreen.style.pointerEvents = 'none';
+      
+      surpriseScreen.classList.add('active');
+      
+      document.body.style.backgroundColor = '#2a103c';
+    });
+  </script>
+</body>
+</html>
